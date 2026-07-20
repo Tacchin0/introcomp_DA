@@ -16,8 +16,7 @@ from os.path import join
 # improve graphs (exclusive for renato!!)
 
 # ECONOMIC (pedro/luiz)
-# bar graph for inflation/unemplyement rate and grade
-# add scatter plot comparing some economic variable with mean grade/target
+# bar graph for inflation/unemplyement rate and gradJe
 
 # MATRICES (renato)
 # add correlation matrix
@@ -42,11 +41,89 @@ data.info()
 
 #print('Taxa de aprovação 1° semestre:',
 #      data['Curricular units 1st sem (approved)'].sum()/data['Curricular units 1st sem (enrolled)'].sum())
-#print('Taxa de aprovação 2° semestre:', 
+#print('Taxa de aprovação 2° semestre:',
 #      data['Curricular units 2nd sem (approved)'].sum()/data['Curricular units 2nd sem (enrolled)'].sum())
 
-data['Average grade per year'] = (data['Curricular units 1st sem (grade)'] + data['Curricular units 2nd sem (grade)']) / 2
-data['Target'] = data['Target'].replace({'Enrolled': 0, 'Dropout': 1, 'Graduate': 2}) # doing ts for future heatmap
+data['Average grade per year'] = (
+    data['Curricular units 1st sem (grade)'] +
+    data['Curricular units 2nd sem (grade)']
+) / 2
+
+data['Target'] = data['Target'].replace({
+    'Enrolled': 0,
+    'Dropout': 1,
+    'Graduate': 2
+})
+
+# -------------------- ECONOMIC ANALYSIS --------------------
+
+# Média das notas por taxa de inflação
+inflation_grade = (
+    data.groupby("Inflation rate")["Average grade per year"]
+    .mean()
+    .sort_index()
+)
+
+fig3, ax1_fig3 = plt.subplots(
+    figsize=(10, 6),
+    num="Média das Notas por Taxa de Inflação"
+)
+
+# Não usamos standard_ax_config para gráficos de barras
+ax1_fig3.spines["top"].set_visible(False)
+ax1_fig3.spines["right"].set_visible(False)
+
+ax1_fig3.bar(
+    range(len(inflation_grade)),
+    inflation_grade.values,
+    color="steelblue",
+    edgecolor="black",
+)
+
+ax1_fig3.set_xticks(range(len(inflation_grade)))
+ax1_fig3.set_xticklabels(
+    [f"{x:.1f}%" for x in inflation_grade.index]
+)
+
+ax1_fig3.set_ylim(9.5, 11.5)
+
+ax1_fig3.set_title("Média das Notas por Taxa de Inflação")
+ax1_fig3.set_xlabel("Taxa de Inflação (%)")
+ax1_fig3.set_ylabel("Média das Notas")
+
+
+# Média das notas por taxa de desemprego
+unemployment_grade = (
+    data.groupby("Unemployment rate")["Average grade per year"]
+    .mean()
+    .sort_index()
+)
+
+fig4, ax1_fig4 = plt.subplots(
+    figsize=(10, 6),
+    num="Média das Notas por Taxa de Desemprego"
+)
+
+ax1_fig4.spines["top"].set_visible(False)
+ax1_fig4.spines["right"].set_visible(False)
+
+ax1_fig4.bar(
+    range(len(unemployment_grade)),
+    unemployment_grade.values,
+    color="tomato",
+    edgecolor="black",
+)
+
+ax1_fig4.set_xticks(range(len(unemployment_grade)))
+ax1_fig4.set_xticklabels(
+    [f"{x:.1f}%" for x in unemployment_grade.index]
+)
+
+ax1_fig4.set_ylim(9.5, 11.5)
+
+ax1_fig4.set_title("Média das Notas por Taxa de Desemprego")
+ax1_fig4.set_xlabel("Taxa de Desemprego (%)")
+ax1_fig4.set_ylabel("Média das Notas")
 
 # Histogram mean grades 1st and 2nd semester
 
@@ -58,36 +135,27 @@ ax1_fig1.hist(data['Curricular units 1st sem (grade)'], bins=range(0, 20), edgec
 ax1_fig1.hist(data['Curricular units 2nd sem (grade)'], bins=range(0, 20), edgecolor='black', color='skyblue', alpha=0.5, label='Média 2° sem')
 ax1_fig1.legend()
 
-# Do not need to worry about range excluding 20 because
-# maximum value in dataset is < 19.
-
-# Based on the grading system being 0-20, it is safe to assume
-# the minimum grade required for passing is 10 (thanks google)
-
 print(data['Curricular units 1st sem (grade)'].describe())
 print(data['Curricular units 2nd sem (grade)'].describe())
 
-# Since histogram has almost no values on 1 < x < 10, let's
-# separate them in 3 groups: enrolled, dropout and success
-# and then proceed our analysis
-
 enrolled = data[data['Target'] == 0]
 dropout  = data[data['Target'] == 1]
-graduate  = data[data['Target'] == 2]
+graduate = data[data['Target'] == 2]
 
-fig2, (ax1_fig2) = plt.subplots(figsize=(12,6))
+fig2, ax1_fig2 = plt.subplots(figsize=(12,6))
 
-#TODO
-#add yaxis label
-
-boxplot = ax1_fig2.boxplot((enrolled['Average grade per year'],
-                  dropout['Average grade per year'],
-                  graduate['Average grade per year']),
-                  labels=['Enrolled', 'Dropout', 'Graduate'],
-                  medianprops={'color': 'black', 'linewidth': '2'},
-                  meanprops={'marker':'x'},
-                  showmeans=True,
-                  patch_artist=True)
+boxplot = ax1_fig2.boxplot(
+    (
+        enrolled['Average grade per year'],
+        dropout['Average grade per year'],
+        graduate['Average grade per year']
+    ),
+    labels=['Enrolled', 'Dropout', 'Graduate'],
+    medianprops={'color': 'black', 'linewidth': 2},
+    meanprops={'marker': 'x'},
+    showmeans=True,
+    patch_artist=True
+)
 
 for patch, color in zip(boxplot['boxes'], ['#FFD700', '#FF6347', '#87CEFA']):
     patch.set_facecolor(color)
