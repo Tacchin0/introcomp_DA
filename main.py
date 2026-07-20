@@ -9,11 +9,21 @@ from os.path import join
 # https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success
 
 # TODO
-# correlation matrix
-# check out either students improved or not
-# some bs for economic stats idk
-# improve graphics
-# stuff
+
+# GENERAL (vinicius)
+# add pizza graph for target variable
+# maybe add scatter plot or boxplot the same for age and target
+# improve graphs (exclusive for renato!!)
+
+# ECONOMIC (pedro/luiz)
+# bar graph for inflation/unemplyement rate and grade
+# add scatter plot comparing some economic variable with mean grade/target
+
+# MATRICES (renato)
+# add correlation matrix
+# check performance and retention rate using a transition matrix (search for crosstab)
+
+# prazo: 22/07
 
 def standard_ax_config(ax):
     ax.spines["top"].set_visible(False)
@@ -27,6 +37,7 @@ data = pd.read_csv(join(path, 'dataset.csv'))
 # No need for pre-processing since researchers stated
 # it was already been done.
 
+print(data)
 data.info()
 
 #print('Taxa de aprovação 1° semestre:',
@@ -62,9 +73,12 @@ print(data['Curricular units 2nd sem (grade)'].describe())
 
 enrolled = data[data['Target'] == 0]
 dropout  = data[data['Target'] == 1]
-graduate  = data[data['Target'] == 2] 
+graduate  = data[data['Target'] == 2]
 
 fig2, (ax1_fig2) = plt.subplots(figsize=(12,6))
+
+#TODO
+#add yaxis label
 
 boxplot = ax1_fig2.boxplot((enrolled['Average grade per year'],
                   dropout['Average grade per year'],
