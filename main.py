@@ -225,25 +225,25 @@ ax1_fig4.set_title("Média das Notas por Taxa de Desemprego")
 ax1_fig4.set_xlabel("Taxa de Desemprego (%)")
 ax1_fig4.set_ylabel("Média das Notas")
 
-# Grafico 5 (de dispersão) -> como o PIB (GDP) afetou o desemprenho dos alunos no primeiro e quais deles se formaram
+# Grafico 5 (de dispersão) -> como a bolsa de estudos afeta o desempenho e retenção dos alunos
 
-fig5, ax1_fig5 = plt.subplots(figsize=(10, 6), num="Desempenho no 1° Semestre por PIB (GDP)")
+fig5, ax1_fig5 = plt.subplots(figsize=(10, 6), num="Desempenho no 1° Semestre por Bolsa de Estudos")
 
 data['Curricular units 1st sem (grade)'] = pd.to_numeric(
     data['Curricular units 1st sem (grade)'], errors='coerce'
 )
-data['GDP'] = pd.to_numeric(data['GDP'], errors='coerce')
-
+bolsa = data['Scholarship holder'].map({0: 'Sem Bolsa', 1: 'Com Bolsa'})
 target_hue = data['Target'].map({0: 'Matriculado', 1: 'Evadido', 2: 'Formado'})
 
-sns.stripplot( data=data, x='GDP', y='Curricular units 1st sem (grade)', hue=target_hue, jitter=True, alpha=0.6,
+sns.stripplot( data=data, x=bolsa, y='Curricular units 1st sem (grade)', hue=target_hue, jitter=True, alpha=0.6,
     palette={'Evadido': '#FF6347', 'Formado': '#87CEFA', 'Matriculado': '#FFD700'}, ax=ax1_fig5)
 
 ax1_fig5.spines["top"].set_visible(False)
 ax1_fig5.spines["right"].set_visible(False)
+ax1_fig5.legend(title="Situação")
 
-ax1_fig5.set_title("Desempenho dos Alunos no 1° Semestre por PIB (GDP) e Carreira Acadêmica")
-ax1_fig5.set_xlabel("PIB (GDP)")
+ax1_fig5.set_title("Desempenho dos Alunos no 1° Semestre por Bolsa de Estudos e Status Acadêmico")
+ax1_fig5.set_xlabel("Bolsa de Estudos")
 ax1_fig5.set_ylabel("Nota 1° Semestre")
 # Transition matrix
 
