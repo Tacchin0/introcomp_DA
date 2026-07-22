@@ -16,13 +16,9 @@ from os.path import join
 # maybe add scatter plot or boxplot the same for age and target
 # improve graphs (exclusive for renato!!)
 
-# ECONOMIC (pedro/luiz)
-# bar graph for inflation/unemplyement rate and grade
-# add scatter plot comparing some economic variable with mean grade/target
-
-# MATRICES (renato)
-# add correlation matrix
-# check performance and retention rate using a transition matrix (search for crosstab)
+# grades and scholarship holder/tuites fees up do date
+# seem to be correlated. change gdp, inflation and unemployement
+# rates with variables mentioned
 
 # prazo: 22/07
 
@@ -41,8 +37,17 @@ data = pd.read_csv(join(path, 'dataset.csv'))
 print(data)
 data.info()
 
-data['Average grade per year'] = (data['Curricular units 1st sem (grade)'] + data['Curricular units 2nd sem (grade)']) / 2
-data['Target'] = data['Target'].replace({'Enrolled': 0, 'Dropout': 1, 'Graduate': 2}).infer_objects(copy=False)
+data['Average grade per year'] = (
+    data['Curricular units 1st sem (grade)'] +
+    data['Curricular units 2nd sem (grade)']
+) / 2
+
+data['Target'] = data['Target'].replace({
+    'Enrolled': 0,
+    'Dropout': 1,
+    'Graduate': 2
+})
+
 
 # Histogram mean grades 1st and 2nd semester
 
@@ -92,9 +97,99 @@ boxplot = ax1_fig2.boxplot((enrolled['Average grade per year'],
 for patch, color in zip(boxplot['boxes'], ['#FFD700', '#FF6347', '#87CEFA']):
     patch.set_facecolor(color)
 
+# -------------------- ECONOMIC ANALYSIS --------------------
+
+# Média das notas por taxa de inflação
+inflation_grade = (
+    data.groupby("Inflation rate")["Average grade per year"]
+    .mean()
+    .sort_index()
+)
+
+fig3, ax1_fig3 = plt.subplots(
+    figsize=(10, 6),
+    num="Média das Notas por Taxa de Inflação"
+)
+
+# Não usamos standard_ax_config para gráficos de barras
+ax1_fig3.spines["top"].set_visible(False)
+ax1_fig3.spines["right"].set_visible(False)
+
+ax1_fig3.bar(
+    range(len(inflation_grade)),
+    inflation_grade.values,
+    color="steelblue",
+    edgecolor="black",
+)
+
+ax1_fig3.set_xticks(range(len(inflation_grade)))
+ax1_fig3.set_xticklabels(
+    [f"{x:.1f}%" for x in inflation_grade.index]
+)
+
+ax1_fig3.set_ylim(9.5, 11.5)
+
+ax1_fig3.set_title("Média das Notas por Taxa de Inflação")
+ax1_fig3.set_xlabel("Taxa de Inflação (%)")
+ax1_fig3.set_ylabel("Média das Notas")
+
+
+# Média das notas por taxa de desemprego
+unemployment_grade = (
+    data.groupby("Unemployment rate")["Average grade per year"]
+    .mean()
+    .sort_index()
+)
+
+fig4, ax1_fig4 = plt.subplots(
+    figsize=(10, 6),
+    num="Média das Notas por Taxa de Desemprego"
+)
+
+ax1_fig4.spines["top"].set_visible(False)
+ax1_fig4.spines["right"].set_visible(False)
+
+ax1_fig4.bar(
+    range(len(unemployment_grade)),
+    unemployment_grade.values,
+    color="tomato",
+    edgecolor="black",
+)
+
+ax1_fig4.set_xticks(range(len(unemployment_grade)))
+ax1_fig4.set_xticklabels(
+    [f"{x:.1f}%" for x in unemployment_grade.index]
+)
+
+ax1_fig4.set_ylim(9.5, 11.5)
+
+ax1_fig4.set_title("Média das Notas por Taxa de Desemprego")
+ax1_fig4.set_xlabel("Taxa de Desemprego (%)")
+ax1_fig4.set_ylabel("Média das Notas")
+
+# Grafico 5 (de dispersão) -> como o PIB (GDP) afetou o desemprenho dos alunos no primeiro e quais deles se formaram
+
+fig5, ax1_fig5 = plt.subplots(figsize=(10, 6), num="Desempenho no 1° Semestre por PIB (GDP)")
+
+data['Curricular units 1st sem (grade)'] = pd.to_numeric(
+    data['Curricular units 1st sem (grade)'], errors='coerce'
+)
+data['GDP'] = pd.to_numeric(data['GDP'], errors='coerce')
+
+target_hue = data['Target'].map({0: 'Matriculado', 1: 'Evadido', 2: 'Formado'})
+
+sns.stripplot( data=data, x='GDP', y='Curricular units 1st sem (grade)', hue=target_hue, jitter=True, alpha=0.6,
+    palette={'Evadido': '#FF6347', 'Formado': '#87CEFA', 'Matriculado': '#FFD700'}, ax=ax1_fig5)
+
+ax1_fig5.spines["top"].set_visible(False)
+ax1_fig5.spines["right"].set_visible(False)
+
+ax1_fig5.set_title("Desempenho dos Alunos no 1° Semestre por PIB (GDP) e Carreira Acadêmica")
+ax1_fig5.set_xlabel("PIB (GDP)")
+ax1_fig5.set_ylabel("Nota 1° Semestre")
 # Transition matrix
 
-fig3, (ax1_fig3) = plt.subplots(figsize=(4,3), num='Matriz de transição de desempenho')
+fig6, (ax1_fig6) = plt.subplots(figsize=(4,3), num='Matriz de transição de desempenho')
 
 ordem = ['Baixo', 'Médio', 'Alto']
 categorizar = lambda x: ordem[0] if x < 10 else (ordem[1] if x < 15 else ordem[2])
@@ -103,28 +198,28 @@ data['Cat_2sem'] = data['Curricular units 2nd sem (grade)'].apply(categorizar)
 
 transicao = pd.crosstab(data['Cat_1sem'], data['Cat_2sem'])
 
-ax1_fig3.set_xticks(range(len(ordem)))
-ax1_fig3.set_xticklabels(ordem)
-ax1_fig3.set_yticks(range(len(ordem)))
-ax1_fig3.set_yticklabels(ordem)
-ax1_fig3.set_xlabel('2º Semestre')
-ax1_fig3.set_ylabel('1º Semestre')
+ax1_fig6.set_xticks(range(len(ordem)))
+ax1_fig6.set_xticklabels(ordem)
+ax1_fig6.set_yticks(range(len(ordem)))
+ax1_fig6.set_yticklabels(ordem)
+ax1_fig6.set_xlabel('2º Semestre')
+ax1_fig6.set_ylabel('1º Semestre')
 
 for i in range(len(ordem)):
     for j in range(len(ordem)):
-        ax1_fig3.text(j, i, str(transicao.iloc[i, j]), va='center', ha='center')
+        ax1_fig6.text(j, i, str(transicao.iloc[i, j]), va='center', ha='center')
 
-ax1_fig3.matshow(transicao, cmap='Blues')
+ax1_fig6.matshow(transicao, cmap='Blues')
 
 # Correlation matrix
 
-fig4, (ax1_fig4) = plt.subplots(figsize=(16,9), num='Heatmap de correlação')
-fig4.subplots_adjust(bottom=0.3, left=0.20)
-ax1_fig4.set_xticklabels(ax1_fig4.get_xticklabels(), fontsize=8)
-ax1_fig4.set_yticklabels(ax1_fig4.get_yticklabels(), fontsize=8)
+fig7, (ax1_fig7) = plt.subplots(figsize=(16,9), num='Heatmap de correlação')
+fig7.subplots_adjust(bottom=0.3, left=0.20)
+ax1_fig7.set_xticklabels(ax1_fig7.get_xticklabels(), fontsize=8)
+ax1_fig7.set_yticklabels(ax1_fig7.get_yticklabels(), fontsize=8)
 sns.heatmap(data.drop(columns=['Cat_1sem', 'Cat_2sem']).corr(), 
             cmap='coolwarm', 
             vmin=-1, 
             vmax=1, 
-            ax=ax1_fig4)
+            ax=ax1_fig7)
 plt.show()
