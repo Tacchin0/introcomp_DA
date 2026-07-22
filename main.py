@@ -1,6 +1,7 @@
 import kagglehub
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from os.path import join
 
 # dataset link
@@ -17,6 +18,7 @@ from os.path import join
 
 # ECONOMIC (pedro/luiz)
 # bar graph for inflation/unemplyement rate and gradJe
+# add scatter plot comparing some economic variable with mean grade/target
 
 # MATRICES (renato)
 # add correlation matrix
@@ -125,6 +127,26 @@ ax1_fig4.set_title("Média das Notas por Taxa de Desemprego")
 ax1_fig4.set_xlabel("Taxa de Desemprego (%)")
 ax1_fig4.set_ylabel("Média das Notas")
 
+# Grafico 5 (de dispersão) -> como o PIB (GDP) afetou o desemprenho dos alunos no primeiro e quais deles se formaram
+fig5, ax1_fig5 = plt.subplots(figsize=(10, 6), num="Desempenho no 1° Semestre por PIB (GDP)")
+
+data['Curricular units 1st sem (grade)'] = pd.to_numeric(
+    data['Curricular units 1st sem (grade)'], errors='coerce'
+)
+data['GDP'] = pd.to_numeric(data['GDP'], errors='coerce')
+
+target_hue = data['Target'].map({0: 'Matriculado', 1: 'Evadido', 2: 'Formado'})
+
+sns.stripplot( data=data, x='GDP', y='Curricular units 1st sem (grade)', hue=target_hue, jitter=True, alpha=0.6,
+    palette={'Evadido': '#FF6347', 'Formado': '#87CEFA', 'Matriculado': '#FFD700'}, ax=ax1_fig5)
+
+ax1_fig5.spines["top"].set_visible(False)
+ax1_fig5.spines["right"].set_visible(False)
+
+ax1_fig5.set_title("Desempenho dos Alunos no 1° Semestre por PIB (GDP) e Carreira Acadêmica")
+ax1_fig5.set_xlabel("PIB (GDP)")
+ax1_fig5.set_ylabel("Nota 1° Semestre")
+
 # Histogram mean grades 1st and 2nd semester
 
 fig1, ax1_fig1 = plt.subplots(figsize=(16,9), num='Histograma da média das notas (1° e 2° sem)')
@@ -150,7 +172,7 @@ boxplot = ax1_fig2.boxplot(
         dropout['Average grade per year'],
         graduate['Average grade per year']
     ),
-    labels=['Enrolled', 'Dropout', 'Graduate'],
+    tick_labels=['Enrolled', 'Dropout', 'Graduate'], # Tive que mudar porque o "labels" tava dando erro no meu pc
     medianprops={'color': 'black', 'linewidth': 2},
     meanprops={'marker': 'x'},
     showmeans=True,
