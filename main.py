@@ -97,6 +97,64 @@ boxplot = ax1_fig2.boxplot((enrolled['Average grade per year'],
 for patch, color in zip(boxplot['boxes'], ['#FFD700', '#FF6347', '#87CEFA']):
     patch.set_facecolor(color)
 
+
+# -------------------- GENERAL ANALYSIS (Vinicius) --------------------
+#Grafico de pizza
+fig_vinicius1, ax_vinicius1 = plt.subplots(figsize=(8, 8), num="Distribuição do Target")
+
+target_counts = data['Target'].value_counts().sort_index()
+labels = ['Matriculado', 'Evadido', 'Formado']
+colors = ['#FFD700', '#FF6347', '#87CEFA']
+
+ax_vinicius1.pie(
+    target_counts, 
+    labels=labels, 
+    autopct='%1.1f%%', 
+    colors=colors, 
+    startangle=90, 
+    wedgeprops={'edgecolor': 'black', 'linewidth': 1.2}
+)
+ax_vinicius1.set_title("Distribuição do Status dos Alunos", fontsize=14, pad=20, fontweight='bold')
+
+#Filtro E.M
+dados_ensino_medio = data[data['Age at enrollment'] <= 19]
+
+fig_vinicius2, ax_vinicius2 = plt.subplots(figsize=(10, 6), num="Idade vs Status (Ensino Médio)")
+
+# Boxplot
+sns.boxplot(
+    data=dados_ensino_medio, 
+    x='Target', 
+    y='Age at enrollment', 
+    palette=colors, 
+    width=0.4,
+    linewidth=1.5,
+    ax=ax_vinicius2
+)
+
+# Adicionando pontos de dispersao
+sns.stripplot(
+    data=dados_ensino_medio, 
+    x='Target', 
+    y='Age at enrollment', 
+    color='black', 
+    alpha=0.35, 
+    jitter=0.18, 
+    size=5,
+    ax=ax_vinicius2
+)
+
+#Ajustes e deixando mais bontio
+ax_vinicius2.spines["top"].set_visible(False)
+ax_vinicius2.spines["right"].set_visible(False)
+ax_vinicius2.set_yticks(range(16, 21))
+ax_vinicius2.set_ylim(15.5, 19.5)
+ax_vinicius2.grid(axis='y', linestyle='--', alpha=0.5)
+ax_vinicius2.set_axisbelow(True)
+ax_vinicius2.set_xticklabels(labels, fontsize=11)
+ax_vinicius2.set_title("Distribuição de Idade por Status Acadêmico (Até 19 anos)", fontsize=14, pad=15, fontweight='bold')
+ax_vinicius2.set_xlabel("Status Acadêmico", fontsize=12, labelpad=10)
+ax_vinicius2.set_ylabel("Idade na Matrícula (Anos)", fontsize=12, labelpad=10)
 # -------------------- ECONOMIC ANALYSIS --------------------
 
 # Média das notas por taxa de inflação
