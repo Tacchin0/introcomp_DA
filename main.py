@@ -225,6 +225,29 @@ ax1_fig4.set_title("Média das Notas por Taxa de Desemprego")
 ax1_fig4.set_xlabel("Taxa de Desemprego (%)")
 ax1_fig4.set_ylabel("Média das Notas")
 
+# Possivel grafico de barras -> média das notas por pagamento de mensalidade
+tuition_grade = (
+    data.groupby("Tuition fees up to date")["Average grade per year"]
+    .mean()
+    .sort_index()
+)
+
+figAux, ax1_figAux = plt.subplots(figsize=(10, 6), num="Média das Notas por Mensalidade em Dia")
+
+ax1_figAux.spines["top"].set_visible(False)
+ax1_figAux.spines["right"].set_visible(False)
+
+ax1_figAux.bar(range(len(tuition_grade)), tuition_grade.values, color="mediumseagreen", edgecolor="black",)
+
+ax1_figAux.set_xticks(range(len(tuition_grade)))
+ax1_figAux.set_xticklabels(["Não", "Sim"])
+
+ax1_figAux.set_ylim(0, 13)
+
+ax1_figAux.set_title("Média das Notas por Mensalidade em Dia")
+ax1_figAux.set_xlabel("Mensalidade em Dia")
+ax1_figAux.set_ylabel("Média das Notas")
+
 # Grafico 5 (de dispersão) -> como a bolsa de estudos afeta o desempenho e retenção dos alunos
 
 fig5, ax1_fig5 = plt.subplots(figsize=(10, 6), num="Desempenho no 1° Semestre por Bolsa de Estudos")
