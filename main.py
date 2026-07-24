@@ -277,6 +277,7 @@ data['Cat_1sem'] = data['Curricular units 1st sem (grade)'].apply(categorizar)
 data['Cat_2sem'] = data['Curricular units 2nd sem (grade)'].apply(categorizar)
 
 transicao = pd.crosstab(data['Cat_1sem'], data['Cat_2sem'])
+transicao = transicao.reindex(index=ordem, columns=ordem, fill_value=0)
 
 ax1_fig6.set_xticks(range(len(ordem)))
 ax1_fig6.set_xticklabels(ordem)
