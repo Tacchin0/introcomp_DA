@@ -226,23 +226,22 @@ ax1_fig4.set_xlabel("Taxa de Desemprego (%)")
 ax1_fig4.set_ylabel("Média das Notas")
 
 # Possivel grafico de barras -> média das notas por pagamento de mensalidade
-tuition_grade = (
-    data.groupby("Tuition fees up to date")["Average grade per year"]
-    .mean()
-    .sort_index()
-)
+
+tuiton_yes = data[data['Tuition fees up to date'] == 1]
+tuiton_no = data[data['Tuition fees up to date'] == 0]
 
 figAux, ax1_figAux = plt.subplots(figsize=(10, 6), num="Média das Notas por Mensalidade em Dia")
 
-ax1_figAux.spines["top"].set_visible(False)
-ax1_figAux.spines["right"].set_visible(False)
+boxplotfigAux = ax1_figAux.boxplot((tuiton_yes["Average grade per year"],
+                                    tuiton_no["Average grade per year"]),
+                  tick_labels=['Sim', 'Não'],
+                  medianprops={'color': 'black', 'linewidth': '2'},
+                  meanprops={'marker':'x'},
+                  showmeans=True,
+                  patch_artist=True)
 
-ax1_figAux.bar(range(len(tuition_grade)), tuition_grade.values, color="mediumseagreen", edgecolor="black",)
-
-ax1_figAux.set_xticks(range(len(tuition_grade)))
-ax1_figAux.set_xticklabels(["Não", "Sim"])
-
-ax1_figAux.set_ylim(0, 13)
+for patch, color in zip(boxplotfigAux['boxes'], ["#54C51C", "#EA0F0F"]):
+    patch.set_facecolor(color)
 
 ax1_figAux.set_title("Média das Notas por Mensalidade em Dia")
 ax1_figAux.set_xlabel("Mensalidade em Dia")
